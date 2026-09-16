@@ -1,14 +1,15 @@
+from django.db.migrations import serializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
+from core.services.job_service import get_all_jobs, create_job
 from .models import User, Job
 from .serializers import UserSerializer, JobSerializer
 
 
 class JobListAPI(APIView):
     def get(self, request):
-        jobs = Job.objects.all()
+        jobs = get_all_jobs()
         serializer = JobSerializer(jobs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -18,9 +19,12 @@ class JobCreateAPI(APIView):
         serializer = JobSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save()
+            job = create_job(
+                title=serializer.validated_data["title"],
+                description=serializer.validated_data["description"]
+            )
             return Response(
-                serializer.data,
+                JobSerializer(job).data,
                 status=status.HTTP_201_CREATED
             )
 
