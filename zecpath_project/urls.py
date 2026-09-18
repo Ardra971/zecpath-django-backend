@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from core.views import JobListAPI, JobCreateAPI, UserTestAPI, JobDeleteAPI
+from core.views import JobListAPI, JobCreateAPI, UserTestAPI, JobDeleteAPI,  UserRegistrationAPI
 
 
 urlpatterns = [
@@ -27,4 +27,5 @@ urlpatterns = [
     path("api/jobs/create/", JobCreateAPI.as_view()),
     path("api/users/", UserTestAPI.as_view()),
     path("api/jobs/<int:pk>/", JobDeleteAPI.as_view()),
+    path("api/register/", UserRegistrationAPI.as_view()),
 ]

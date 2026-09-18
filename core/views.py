@@ -4,7 +4,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.services.job_service import get_all_jobs, create_job
 from .models import User, Job
-from .serializers import UserSerializer, JobSerializer
+from .serializers import (
+    UserSerializer,
+    JobSerializer,
+    UserRegistrationSerializer,
+)
 
 
 class JobListAPI(APIView):
@@ -54,3 +58,21 @@ class JobDeleteAPI(APIView):
                 {"error": "Job not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+class UserRegistrationAPI(APIView):
+
+    def post(self, request):
+        serializer = UserRegistrationSerializer(data=request.data)
+
+        if serializer.is_valid():
+            user = serializer.save()
+
+            return Response(
+                UserSerializer(user).data,
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
