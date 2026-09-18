@@ -18,7 +18,11 @@ from django.contrib import admin
 from django.urls import path
 
 from core.views import JobListAPI, JobCreateAPI, UserTestAPI, JobDeleteAPI,  UserRegistrationAPI
-
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenBlacklistView,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -28,4 +32,8 @@ urlpatterns = [
     path("api/users/", UserTestAPI.as_view()),
     path("api/jobs/<int:pk>/", JobDeleteAPI.as_view()),
     path("api/register/", UserRegistrationAPI.as_view()),
+    path("api/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/signup/", UserRegistrationAPI.as_view(), name="signup"),
+    path("api/logout/", TokenBlacklistView.as_view(), name="token_blacklist"),
 ]
