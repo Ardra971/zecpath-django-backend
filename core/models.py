@@ -68,7 +68,6 @@ class User(AbstractUser):
 
 
 class Employer(models.Model):
-
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -76,13 +75,18 @@ class Employer(models.Model):
     )
 
     company_name = models.CharField(max_length=200)
+    company_description = models.TextField(blank=True)
+    company_website = models.URLField(blank=True)
+    company_location = models.CharField(max_length=200, blank=True)
+
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.company_name
 
 
 class Candidate(models.Model):
-
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -93,7 +97,16 @@ class Candidate(models.Model):
     skills = models.TextField(blank=True)
     education = models.TextField(blank=True)
     experience = models.TextField(blank=True)
+    expected_salary = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True
+    )
     resume_text = models.TextField(blank=True)
+
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.user.name

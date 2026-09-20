@@ -29,3 +29,13 @@ class IsCandidate(BasePermission):
             and request.user.role == "CANDIDATE"
         )
 
+class IsOwnerOrAdmin(BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.user.is_authenticated
+            and (
+                request.user.role == "ADMIN"
+                or request.user.role in ["CANDIDATE", "EMPLOYER"]
+            )
+        )
+

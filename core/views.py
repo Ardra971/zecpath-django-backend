@@ -15,6 +15,10 @@ from core.permissions import IsEmployer
 from core.permissions import IsAdmin
 from .models import User, Job, Application
 from core.permissions import IsEmployer, IsAdmin, IsCandidate
+from core.models import User, Job, Application, Candidate, Employer
+from core.serializers import CandidateProfileSerializer, EmployerProfileSerializer
+
+
 
 class JobListAPI(APIView):
     permission_classes = [IsAuthenticated]
@@ -132,4 +136,153 @@ class ApplicationCreateAPI(APIView):
                 "application_id": application.id
             },
             status=status.HTTP_201_CREATED
+        )
+
+class CandidateProfileAPI(APIView):
+    permission_classes = [IsCandidate]
+
+    def get(self, request):
+        profile = request.user.candidate
+
+        if profile.is_deleted:
+            return Response(
+                {"error": "Profile has been deleted"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = CandidateProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        profile = request.user.candidate
+
+        if profile.is_deleted:
+            return Response(
+                {"error": "Profile has been deleted"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = CandidateProfileSerializer(
+            profile,
+            data=request.data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def delete(self, request):
+        profile = request.user.candidate
+
+        if profile.is_deleted:
+            return Response(
+                {"error": "Profile already deleted"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        from django.utils import timezone
+
+        profile.is_deleted = True
+        profile.deleted_at = timezone.now()
+        profile.save()
+
+        return Response(
+            {"message": "Candidate profile deleted successfully"},
+            status=status.HTTP_200_OK
+        )
+
+class EmployerProfileAPI(APIView):
+    permission_classes = [IsEmployer]
+
+    def get(self, request):
+        profile = request.user.employer
+
+        if profile.is_deleted:
+            return Response(
+                {"error": "Profile has been deleted"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = EmployerProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        profile = request.user.employer
+
+        if profile.is_deleted:
+            return Response(
+                {"error": "Profile has been deleted"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = EmployerProfileSerializer(
+            profile,
+            data=request.data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def delete(self, request):
+        profile = request.user.employer
+
+        if profile.is_deleted:
+            return Response(
+                {"error": "Profile already deleted"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        from django.utils import timezone
+
+        profile.is_deleted = True
+        profile.deleted_at = timezone.now()
+        profile.save()
+
+        return Response(
+            {"message": "Employer profile deleted successfully"},
+            status=status.HTTP_200_OK
+        )
+
+class AdminProfileListAPI(APIView):
+    permission_classes = [IsAdmin]
+
+    def get(self, request):
+        candidates = Candidate.objects.filter(is_deleted=False)
+        employers = Employer.objects.filter(is_deleted=False)
+
+        candidate_serializer = CandidateProfileSerializer(
+            candidates,
+            many=True
+        )
+
+        employer_serializer = EmployerProfileSerializer(
+            employers,
+            many=True
+        )
+
+        return Response(
+            {
+                "candidates": candidate_serializer.data,
+                "employers": employer_serializer.data
+            },
+            status=status.HTTP_200_OK
         )

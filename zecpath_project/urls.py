@@ -24,6 +24,10 @@ from core.views import (
     JobDeleteAPI,
     UserRegistrationAPI,
     ApplicationCreateAPI,
+
+    CandidateProfileAPI,
+    EmployerProfileAPI,
+    AdminProfileListAPI,
 )
 
 
@@ -46,4 +50,7 @@ urlpatterns = [
     path("api/signup/", UserRegistrationAPI.as_view(), name="signup"),
     path("api/logout/", TokenBlacklistView.as_view(), name="token_blacklist"),
     path("api/applications/create/", ApplicationCreateAPI.as_view()),
+    path("api/candidate/profile/", CandidateProfileAPI.as_view()),
+    path("api/employer/profile/", EmployerProfileAPI.as_view()),
+    path("api/admin/profiles/", AdminProfileListAPI.as_view()),
 ]
