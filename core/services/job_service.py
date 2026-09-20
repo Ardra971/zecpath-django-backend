@@ -5,8 +5,9 @@ def get_all_jobs():
     return Job.objects.all()
 
 
-def create_job(title, description):
+def create_job(title, description, employer):
     return Job.objects.create(
         title=title,
-        description=description
+        description=description,
+        employer=employer
     )

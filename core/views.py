@@ -11,7 +11,10 @@ from .serializers import (
     RegisterSerializer
 )
 from rest_framework.permissions import IsAuthenticated
-
+from core.permissions import IsEmployer
+from core.permissions import IsAdmin
+from .models import User, Job, Application
+from core.permissions import IsEmployer, IsAdmin, IsCandidate
 
 class JobListAPI(APIView):
     permission_classes = [IsAuthenticated]
@@ -23,13 +26,15 @@ class JobListAPI(APIView):
 
 
 class JobCreateAPI(APIView):
+    permission_classes = [IsEmployer]
     def post(self, request):
         serializer = JobSerializer(data=request.data)
 
         if serializer.is_valid():
             job = create_job(
                 title=serializer.validated_data["title"],
-                description=serializer.validated_data["description"]
+                description=serializer.validated_data["description"],
+                employer=request.user.employer
             )
             return Response(
                 JobSerializer(job).data,
@@ -43,6 +48,7 @@ class JobCreateAPI(APIView):
 
 
 class UserTestAPI(APIView):
+    permission_classes = [IsAdmin]
     def get(self, request):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
@@ -99,4 +105,31 @@ class RegisterAPI(APIView):
         return Response(
             serializer.errors,
             status=status.HTTP_400_BAD_REQUEST
+        )
+
+class ApplicationCreateAPI(APIView):
+    permission_classes = [IsCandidate]
+
+    def post(self, request):
+        job_id = request.data.get("job")
+
+        try:
+            job = Job.objects.get(id=job_id)
+        except Job.DoesNotExist:
+            return Response(
+                {"error": "Job not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        application = Application.objects.create(
+            user=request.user,
+            job=job
+        )
+
+        return Response(
+            {
+                "message": "Application submitted successfully",
+                "application_id": application.id
+            },
+            status=status.HTTP_201_CREATED
         )

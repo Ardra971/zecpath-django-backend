@@ -17,7 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from core.views import JobListAPI, JobCreateAPI, UserTestAPI, JobDeleteAPI,  UserRegistrationAPI
+from core.views import (
+    JobListAPI,
+    JobCreateAPI,
+    UserTestAPI,
+    JobDeleteAPI,
+    UserRegistrationAPI,
+    ApplicationCreateAPI,
+)
+
+
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -36,4 +45,5 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/signup/", UserRegistrationAPI.as_view(), name="signup"),
     path("api/logout/", TokenBlacklistView.as_view(), name="token_blacklist"),
+    path("api/applications/create/", ApplicationCreateAPI.as_view()),
 ]
