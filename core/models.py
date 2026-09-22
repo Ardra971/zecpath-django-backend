@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-
+import uuid 
+from pathlib import Path
 
 class UserManager(BaseUserManager):
 
@@ -85,7 +86,9 @@ class Employer(models.Model):
     def __str__(self):
         return self.company_name
 
-
+def resume_upload_path(instance, filename):
+    extension = Path(filename).suffix.lower()
+    return f"resumes/resume_{uuid.uuid4().hex}{extension}"
 class Candidate(models.Model):
     user = models.OneToOneField(
         User,
@@ -103,6 +106,12 @@ class Candidate(models.Model):
         null=True,
         blank=True
     )
+
+    resume = models.FileField(
+    upload_to=resume_upload_path,
+    blank=True,
+    null=True
+)
     resume_text = models.TextField(blank=True)
 
     is_deleted = models.BooleanField(default=False)

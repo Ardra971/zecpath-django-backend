@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from django.conf import settings
+from django.conf.urls.static import static
 from core.views import (
     JobListAPI,
     JobCreateAPI,
@@ -28,6 +29,7 @@ from core.views import (
     CandidateProfileAPI,
     EmployerProfileAPI,
     AdminProfileListAPI,
+    ResumeUploadAPI,
 )
 
 
@@ -53,4 +55,11 @@ urlpatterns = [
     path("api/candidate/profile/", CandidateProfileAPI.as_view()),
     path("api/employer/profile/", EmployerProfileAPI.as_view()),
     path("api/admin/profiles/", AdminProfileListAPI.as_view()),
+    path("api/candidate/resume/", ResumeUploadAPI.as_view()),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
+    )

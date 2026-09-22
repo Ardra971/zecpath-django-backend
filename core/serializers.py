@@ -68,6 +68,40 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 class CandidateProfileSerializer(serializers.ModelSerializer):
+
+    def validate_resume(self, value):
+        allowed_extensions = [".pdf", ".doc", ".docx"]
+
+        file_name = value.name.lower()
+
+        # Check file extension
+        if not any(file_name.endswith(ext) for ext in allowed_extensions):
+            raise serializers.ValidationError(
+                "Only PDF, DOC, and DOCX files are allowed."
+            )
+
+        # Check MIME/content type
+        allowed_content_types = [
+            "application/pdf",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ]
+
+        if value.content_type not in allowed_content_types:
+            raise serializers.ValidationError(
+                "Invalid resume file type."
+            )
+
+        # Check file size - 5 MB
+        max_size = 5 * 1024 * 1024
+
+        if value.size > max_size:
+            raise serializers.ValidationError(
+                "Resume file size must not exceed 5 MB."
+            )
+
+        return value
+
     class Meta:
         model = Candidate
         fields = [
@@ -78,6 +112,7 @@ class CandidateProfileSerializer(serializers.ModelSerializer):
             "experience",
             "expected_salary",
             "resume_text",
+            "resume",
         ]
         read_only_fields = ["id"]
 
